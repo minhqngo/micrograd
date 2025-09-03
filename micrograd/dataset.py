@@ -70,7 +70,7 @@ class MNISTDataset:
     
     '''
     dataset_dir
-    |---MNIST
+    ├── MNIST
         ├── train-images.idx3-ubyte (train images file)
         ├── train-labels.idx1-ubyte
         ├── t10k-images.idx3-ubyte (val images file)
@@ -103,9 +103,9 @@ class MNISTDataset:
 class UCISentimentDataset:
     """
     dataset_dir
-    |---uci_sentiment
+    ├── uci_sentiment
         ├── yelp_labelled.txt           (reviews from yelp, labelled with positive/negative sentiment)
-        ├── amazon_cells_labelled.txt   (reviews from amamzon, labelled with positive/negative sentiment)
+        ├── amazon_cells_labelled.txt   (reviews from amazon, labelled with positive/negative sentiment)
         ├── imdb_labelled.txt           (reviews from imdb, labelled with positive/negative sentiment)
     """
     
