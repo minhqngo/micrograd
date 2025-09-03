@@ -27,7 +27,6 @@ def test_sgd():
     # w_1 = 10 - 0.1 * 20 = 8.0
     expected_param = 8.0
 
-    # Check that the parameter has been updated correctly
     assert np.allclose(param.data, expected_param), PrintColor.FAIL + f"SGD test failed: expected {expected_param}, got {param.data}" + PrintColor.ENDC
     print(PrintColor.PASS + "SGD test passed!" + PrintColor.ENDC)
     print(DONE_TEST)

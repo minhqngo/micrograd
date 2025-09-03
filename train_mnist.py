@@ -6,12 +6,13 @@ import matplotlib.pyplot as plt
 from micrograd.loss import CrossEntropyLoss
 from micrograd.engine import Value
 from micrograd.nn import MLP
-from micrograd.optimizer import SGD
+from micrograd.optimizer import SGD, NesterovSGD
 from micrograd.functional import softmax
 from micrograd.dataset import MNISTDataset
 from micrograd.dataloader import DataLoader
     
 LEARNING_RATE = 0.01
+MOMENTUM = 0.9
 EPOCHS = 20
 BATCH_SIZE = 128
 DATASET_ROOT = "/home/minh/Desktop/datasets/"
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     # Input is 784 (28x28), one hidden layer of 32 neurons, one hidden layer of 16 neurons, output is 10 classes.
     model = MLP(nin=784, nouts=[32, 16, 10])
     criterion = CrossEntropyLoss()
-    optimizer = SGD(model.parameters(), learning_rate=LEARNING_RATE)
+    optimizer = NesterovSGD(model.parameters(), learning_rate=LEARNING_RATE, momentum=MOMENTUM)
     
     logs = {
         'train_acc': [],
