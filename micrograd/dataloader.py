@@ -21,5 +21,5 @@ class DataLoader:
             inputs, labels = zip(*batch_data)
             inputs_batch = np.array(inputs)
             labels_batch = np.array(labels)
-            
+
             yield inputs_batch, labels_batch    

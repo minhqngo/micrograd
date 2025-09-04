@@ -1,40 +1,40 @@
 import copy
 import os
+import pickle
 import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
 
-from micrograd.loss import CrossEntropyLoss
+from micrograd.loss import BinaryCrossEntropyLoss
 from micrograd.engine import Value
 from micrograd.nn import MLP
-from micrograd.optimizer import SGD, NesterovSGD
-from micrograd.functional import softmax
-from micrograd.dataset import MNISTDataset
+from micrograd.optimizer import SGD
+from micrograd.functional import sigmoid
+from micrograd.dataset import UCISentimentDataset
 from micrograd.dataloader import DataLoader
-    
+
 LEARNING_RATE = 0.01
-MOMENTUM = 0.9
-EPOCHS = 20
-BATCH_SIZE = 128
-DATASET_ROOT = "/home/minh/Desktop/datasets/"
-WEIGHTS_PATH = "mnist_mlp.npz"
-LOG_ROOT = "./logs/mnist"
+EPOCHS = 100
+BATCH_SIZE = 64
+DATASET_ROOT = '/home/minh/Desktop/datasets/'
+WEIGHTS_PATH = "../sentiment_mlp.npz"
+VECTORIZER_PATH = "../sentiment_vectorizer.pkl"
+LOG_ROOT = "../logs/sentiment"
 
 
-def preprocess_inputs(inputs):
-    flattened = inputs.flatten()
-    flattened = flattened / 255.
-    return flattened
-    
 if __name__ == '__main__':
-    train_ds = MNISTDataset(root=DATASET_ROOT, train=True, download=True)
-    val_ds = MNISTDataset(root=DATASET_ROOT, train=False, download=True)
-    train_loader = DataLoader(train_ds, BATCH_SIZE, shuffle=True)
-    val_loader = DataLoader(val_ds, BATCH_SIZE, shuffle=False)
+    vectorizer = CountVectorizer()    
+    ds = UCISentimentDataset(root=DATASET_ROOT, vectorizer=vectorizer)
     
-    # Input is 784 (28x28), one hidden layer of 32 neurons, one hidden layer of 16 neurons, output is 10 classes.
-    model = MLP(nin=784, nouts=[32, 16, 10])
-    criterion = CrossEntropyLoss()
-    optimizer = NesterovSGD(model.parameters(), learning_rate=LEARNING_RATE, momentum=MOMENTUM)
+    train, val = train_test_split(ds, test_size=0.2, random_state=42)
+    train_loader = DataLoader(train, batch_size=16, shuffle=True)
+    val_loader = DataLoader(val, batch_size=16, shuffle=False)
+    
+    input_size = len(ds.vectorizer.vocabulary_)
+    model = MLP(nin=input_size, nouts=[16, 1])
+    criterion = BinaryCrossEntropyLoss()
+    optimizer = SGD(model.parameters(), learning_rate=LEARNING_RATE)
     
     logs = {
         'train_acc': [],
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         train_acc = 0.
         train_loss = 0.
         for inputs, labels in train_loader:
-            inputs = preprocess_inputs(Value(inputs))
+            inputs = Value(inputs)
             
             logits = model(inputs)
             loss = criterion(logits, labels)
@@ -58,8 +58,8 @@ if __name__ == '__main__':
             loss.backward()
             optimizer.step()
             
-            train_probs = softmax(logits)
-            train_preds = np.argmax(train_probs, axis=1)
+            train_scores = sigmoid(logits)
+            train_preds = (train_scores >= 0.5).astype(int)
             train_acc += np.mean(labels == train_preds)
             
             logs['train_loss'].append(loss.data)
@@ -71,11 +71,11 @@ if __name__ == '__main__':
         
         val_acc = 0.
         for inputs, labels in val_loader:
-            inputs = preprocess_inputs(Value(inputs))
+            inputs = Value(inputs)
             
             logits = model(inputs)            
-            val_probs = softmax(logits)
-            val_preds = np.argmax(val_probs, axis=1)
+            val_scores = sigmoid(logits)
+            val_preds = (val_scores >= 0.5).astype(int)
             val_acc += np.mean(labels == val_preds)
             
         val_acc /= len(val_loader)
@@ -87,18 +87,21 @@ if __name__ == '__main__':
             best_model = copy.deepcopy(model)
             
     best_model.save_weights(WEIGHTS_PATH)
+    with open(VECTORIZER_PATH, 'wb') as fout:
+        pickle.dump(vectorizer, fout)
+    print(f"Vectorizer saved to {VECTORIZER_PATH}")
     
     os.makedirs(LOG_ROOT, exist_ok=True)
     
     plt.plot(logs['train_acc'], label='Train accuracy')
-    plt.xlabel('Epochs')
+    plt.xlabel('Epoch')
     plt.legend()
     plt.title('Training accuracy graph')
     plt.savefig(os.path.join(LOG_ROOT, 'train_accuracy.jpg'))
     plt.clf()
     
     plt.plot(logs['val_acc'], label='Val accuracy')
-    plt.xlabel('Epochs')
+    plt.xlabel('Epoch')
     plt.legend()
     plt.title('Val accuracy graph')
     plt.savefig(os.path.join(LOG_ROOT, 'val_accuracy.jpg'))
