@@ -1,6 +1,6 @@
-This is a tiny autograd engine based on Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd) library. This library is an extension of the original one.
+This is a tiny autograd engine, with a tiny neural network library built on top of it. This project is based on Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd) project. It is an extension to Andrej's project, which supports vector-valued and matrix-valued objects, unlike the original which only supports scalars.
 
-* Support vector-valued and matrix-valued objects.
+The neural networks library built on top of this autograd engine has these features:
 * Supports loss functions: CE loss, BCE loss, MSE loss.
 * Support optimizers: SGD, SGD with momentum.
 * Currently support downloading and loading MNIST dataset and UCI sentiment dataset.
