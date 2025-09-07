@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-from micrograd.loss import CrossEntropyLoss
+from micrograd.loss import MSELoss
 from micrograd.engine import Value
 from micrograd.nn import MLP
 from micrograd.optimizer import SGD
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(train_ds, BATCH_SIZE, shuffle=True)
 
     model = MLP(nin=2, nouts=[16, 2])
-    criterion = CrossEntropyLoss()
+    criterion = MSELoss()
     optimizer = SGD(model.parameters(), learning_rate=LEARNING_RATE)
 
     logs = {
@@ -39,7 +39,7 @@ if __name__ == '__main__':
         train_loss = 0.
         for inputs, labels in train_loader:
             logits = model(Value(inputs))
-            loss = criterion(logits, labels)
+            loss = criterion(logits, Value(labels))
             train_loss += loss.data
 
             optimizer.zero_grad()

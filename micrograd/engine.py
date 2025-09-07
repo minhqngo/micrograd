@@ -2,8 +2,8 @@ import numpy as np
 
 
 class Value:
-    def __init__(self, data, _children=(), _op=''):
-        self.data = np.array(data, dtype=np.float32)
+    def __init__(self, data, _children=(), _op='', dtype=np.float32):
+        self.data = np.array(data, dtype=dtype)
         self.grad = np.zeros_like(self.data)
         
         self._backward = lambda: None

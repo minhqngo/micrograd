@@ -14,8 +14,8 @@ from micrograd.dataloader import DataLoader
 LEARNING_RATE = 0.01
 MOMENTUM = 0.9
 EPOCHS = 20
-BATCH_SIZE = 1
-DATASET_ROOT = "/home/minh/Desktop/datasets/"
+BATCH_SIZE = 128
+DATASET_ROOT = "/home/minh/datasets/"
 WEIGHTS_PATH = "../mnist_mlp.npz"
 LOG_ROOT = "../logs/mnist"
 
@@ -27,10 +27,12 @@ def preprocess_inputs(inputs):
 
     
 if __name__ == '__main__':
+    print("Loading dataset...")
     train_ds = MNISTDataset(root=DATASET_ROOT, train=True, download=True)
     val_ds = MNISTDataset(root=DATASET_ROOT, train=False, download=True)
     train_loader = DataLoader(train_ds, BATCH_SIZE, shuffle=True)
     val_loader = DataLoader(val_ds, BATCH_SIZE, shuffle=False)
+    print("MNIST dataset loaded")
     
     # Input is 784 (28x28), one hidden layer of 32 neurons, one hidden layer of 16 neurons, output is 10 classes.
     model = MLP(nin=784, nouts=[32, 16, 10])
@@ -52,7 +54,7 @@ if __name__ == '__main__':
             inputs = preprocess_inputs(Value(inputs))
             
             logits = model(inputs)
-            loss = criterion(logits, labels)
+            loss = criterion(logits, Value(labels, dtype=np.uint8))
             train_loss += loss.data
             
             optimizer.zero_grad()

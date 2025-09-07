@@ -51,7 +51,7 @@ if __name__ == '__main__':
             inputs = Value(inputs)
             
             logits = model(inputs)
-            loss = criterion(logits, labels)
+            loss = criterion(logits, Value(labels))
             train_loss += loss.data
             
             optimizer.zero_grad()
