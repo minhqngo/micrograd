@@ -62,3 +62,11 @@ class MSELoss(Module):
 
         out._backward = _backward
         return out
+
+
+class HingeLoss(Module):
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, y_pred, y_true):
+        pass

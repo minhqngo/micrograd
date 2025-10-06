@@ -20,6 +20,9 @@ class Value:
     
     def __repr__(self):
         return f"Value(shape={self.shape}, data={self.data}, grad={self.grad})"
+
+    def __str__(self):
+        return f"Value(shape={self.shape}, grad={self.grad})"
     
     @staticmethod
     def _broadcast_backward(grad, target_shape):
